@@ -1,15 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>karashiiro</Authors>
+    <Authors>goatcorp</Authors>
     <Product />
     <Description>Plugin system abstractions for Dalamud, to aid in plugin development.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/karashiiro/Dalamud.CrystalTower</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/karashiiro/Dalamud.CrystalTower</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/goatcorp/Dalamud.CrystalTower</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/goatcorp/Dalamud.CrystalTower</RepositoryUrl>
     <PackageTags>dalamud plugin</PackageTags>
+    <Company>goatcorp</Company>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
