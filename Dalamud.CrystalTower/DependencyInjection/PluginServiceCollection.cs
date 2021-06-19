@@ -21,7 +21,7 @@ namespace Dalamud.CrystalTower.DependencyInjection
         /// <typeparam name="TServiceImplementation">The service type.</typeparam>
         /// <param name="instance">The service instance.</param>
         /// <param name="shouldDispose">Whether or not this collection class should dispose the service.</param>
-        public void AddService<TServiceImplementation>(TServiceImplementation instance, bool shouldDispose = true)
+        public void AddService<TServiceImplementation>(TServiceImplementation instance, bool shouldDispose = true) where TServiceImplementation : class
         {
             _services.Add(new ServiceWrapper
             {
@@ -45,7 +45,7 @@ namespace Dalamud.CrystalTower.DependencyInjection
         /// </summary>
         /// <typeparam name="TService">The service type to retrieve an instance of.</typeparam>
         /// <returns>The service instance, or <c>null</c> if none has been installed in this collection.</returns>
-        public TService GetService<TService>()
+        public TService GetService<TService>() where TService : class
             => (TService)GetService(typeof(TService));
 
         /// <summary>
