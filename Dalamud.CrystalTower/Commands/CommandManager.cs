@@ -34,7 +34,7 @@ namespace Dalamud.CrystalTower.Commands
         /// module instance with any applicable service implementations.
         /// </summary>
         /// <param name="commandModule">The command module type to install commands from.</param>
-        public void AddCommandHandlers(Type commandModule)
+        public void AddCommandModule(Type commandModule)
         {
             var instance = Activator.CreateInstance(commandModule);
             _serviceCollection?.InjectInto(instance);
@@ -57,14 +57,14 @@ namespace Dalamud.CrystalTower.Commands
         /// Installs commands from the provided command module type into the plugin interface.
         /// </summary>
         /// <typeparam name="TCommandModule">The command module type to install commands from.</typeparam>
-        public void AddCommandHandlers<TCommandModule>()
-            => AddCommandHandlers(typeof(TCommandModule));
+        public void AddCommandModule<TCommandModule>()
+            => AddCommandModule(typeof(TCommandModule));
 
         /// <summary>
         /// Uninstalls commands from the provided command module type into the plugin interface.
         /// </summary>
         /// <param name="commandModule">The command module type to uninstall commands from.</param>
-        public void RemoveCommandHandlers(Type commandModule)
+        public void RemoveCommandModule(Type commandModule)
         {
             foreach (var registeredCommandInfo in _pluginCommands[commandModule])
             {
@@ -78,8 +78,8 @@ namespace Dalamud.CrystalTower.Commands
         /// Uninstalls commands from the provided command module type into the plugin interface.
         /// </summary>
         /// <typeparam name="TCommandModule">The command module type to uninstall commands from.</typeparam>
-        public void RemoveCommandHandlers<TCommandModule>()
-            => RemoveCommandHandlers(typeof(TCommandModule));
+        public void RemoveCommandModule<TCommandModule>()
+            => RemoveCommandModule(typeof(TCommandModule));
 
         /// <summary>
         /// Builds <see cref="CommandInfo"/> instances from the attributes attached to a method.
@@ -125,7 +125,7 @@ namespace Dalamud.CrystalTower.Commands
         {
             foreach (var moduleType in _pluginCommands.Keys)
             {
-                RemoveCommandHandlers(moduleType);
+                RemoveCommandModule(moduleType);
             }
 
             foreach (var instance in _moduleInstances)
