@@ -11,6 +11,8 @@ namespace Dalamud.CrystalTower.DependencyInjection
         public PluginServiceCollection()
         {
             _services = new List<ServiceWrapper>();
+
+            AddService(this, shouldDispose: false);
         }
 
         /// <summary>
