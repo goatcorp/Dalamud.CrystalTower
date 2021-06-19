@@ -6,22 +6,28 @@ namespace Dalamud.CrystalTower.DependencyInjection
 {
     public class PluginServiceCollection : IDisposable
     {
-        private readonly IList<object> _services;
+        private readonly IList<ServiceWrapper> _services;
 
         public PluginServiceCollection()
         {
-            _services = new List<object>();
+            _services = new List<ServiceWrapper>();
         }
 
         /// <summary>
         /// Installs a service implementation into the service collection of this <see cref="PluginServiceCollection"/>.
-        /// This instance will become responsible for disposing the service.
+        /// This instance will become responsible for disposing the service unless the <paramref name="shouldDispose"/>
+        /// parameter is <c>false</c>.
         /// </summary>
         /// <typeparam name="TServiceImplementation">The service type.</typeparam>
         /// <param name="instance">The service instance.</param>
-        public void AddService<TServiceImplementation>(TServiceImplementation instance)
+        /// <param name="shouldDispose">Whether or not this collection class should dispose the service.</param>
+        public void AddService<TServiceImplementation>(TServiceImplementation instance, bool shouldDispose = true)
         {
-            _services.Add(instance);
+            _services.Add(new ServiceWrapper
+            {
+                Instance = instance,
+                ShouldDispose = shouldDispose,
+            });
         }
 
         /// <summary>
@@ -64,17 +70,25 @@ namespace Dalamud.CrystalTower.DependencyInjection
         }
 
         /// <summary>
-        /// Calls <see cref="IDisposable.Dispose"/> on any services installed into this instance that implement <see cref="IDisposable"/>.
+        /// Calls <see cref="IDisposable.Dispose"/> on any services installed into this instance that implement
+        /// <see cref="IDisposable"/> and were configured to be disposed by this collection.
         /// </summary>
         public void Dispose()
         {
             foreach (var service in _services)
             {
-                if (service is IDisposable disposableService)
+                if (service.Instance is IDisposable disposableInstance)
                 {
-                    disposableService.Dispose();
+                    disposableInstance.Dispose();
                 }
             }
+        }
+
+        private class ServiceWrapper
+        {
+            public object Instance { get; set; }
+
+            public bool ShouldDispose { get; set; }
         }
     }
 }
