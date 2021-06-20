@@ -61,6 +61,17 @@ namespace Dalamud.CrystalTower.Commands
             => AddCommandModule(typeof(TCommandModule));
 
         /// <summary>
+        /// Retrieves the command module registered under the provided type, or throws an exception
+        /// if the module was not registered.
+        /// </summary>
+        /// <typeparam name="TCommandModule">The type of the module instance to retrieve.</typeparam>
+        /// <returns>The module instance.</returns>
+        public TCommandModule GetCommandModule<TCommandModule>()
+        {
+            return (TCommandModule)ModuleInstances.First(inst => inst is TCommandModule);
+        }
+
+        /// <summary>
         /// Uninstalls commands from the provided command module type into the plugin interface.
         /// </summary>
         /// <param name="commandModule">The command module type to uninstall commands from.</param>
