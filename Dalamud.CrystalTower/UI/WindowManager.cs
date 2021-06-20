@@ -68,6 +68,17 @@ namespace Dalamud.CrystalTower.UI
         }
 
         /// <summary>
+        /// Hides the <see cref="ImmediateModeWindow"/> specified by the type parameter. Throws an exception if the
+        /// window has not been installed into this instance.
+        /// </summary>
+        /// <typeparam name="TWindow">The window type.</typeparam>
+        public void HideWindow<TWindow>() where TWindow : ImmediateModeWindow
+        {
+            var windowInfo = Windows.First(w => w.Instance is TWindow);
+            windowInfo.Visible = false;
+        }
+
+        /// <summary>
         /// Toggles the <see cref="ImmediateModeWindow"/> specified by the type parameter. Throws an exception if the
         /// window has not been installed into this instance.
         /// </summary>
@@ -124,7 +135,7 @@ namespace Dalamud.CrystalTower.UI
         /// Callback method called when an installed <see cref="ImmediateModeWindow"/> requests that another window be returned.
         /// </summary>
         /// <param name="windowType">The type of the window to be returned.</param>
-        public object OnWindowReferenceRequested(Type windowType)
+        private object OnWindowReferenceRequested(Type windowType)
         {
             return Windows.First(w => windowType.IsInstanceOfType(w.Instance)).Instance;
         }
