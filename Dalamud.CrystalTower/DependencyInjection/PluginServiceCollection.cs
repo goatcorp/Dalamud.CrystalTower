@@ -39,7 +39,7 @@ namespace Dalamud.CrystalTower.DependencyInjection
         /// <returns>The service instance, or <c>null</c> if none has been installed in this collection.</returns>
         public object GetService(Type serviceType)
         {
-            return Services.FirstOrDefault(serviceType.IsInstanceOfType);
+            return Services.FirstOrDefault(sw => serviceType.IsInstanceOfType(sw.Instance))?.Instance;
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Dalamud.CrystalTower.DependencyInjection
         {
             foreach (var service in Services)
             {
-                if (service.Instance.Equals(this)) continue;
+                if (!service.ShouldDispose) continue;
 
                 if (service.Instance is IDisposable disposableInstance)
                 {
