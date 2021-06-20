@@ -1,5 +1,5 @@
 ﻿using Dalamud.CrystalTower.Commands.Attributes;
-using Dalamud.CrystalTower.DependencyInjection;
+using Dalamud.CrystalTower.DependencyInjection.Extensions;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using System;
@@ -11,22 +11,22 @@ namespace Dalamud.CrystalTower.Commands
 {
     public class CommandManager : IDisposable
     {
-        private readonly DalamudPluginInterface _pluginInterface;
-        private readonly IDictionary<Type, IList<RegisteredCommandInfo>> _pluginCommands;
-        private readonly IList<object> _moduleInstances;
+        protected readonly DalamudPluginInterface PluginInterface;
+        protected readonly IDictionary<Type, IList<RegisteredCommandInfo>> PluginCommands;
+        protected readonly IList<object> ModuleInstances;
 
-        private readonly PluginServiceCollection _serviceCollection;
+        protected readonly IServiceProvider ServiceProvider;
 
         public CommandManager(DalamudPluginInterface pluginInterface)
         {
-            _pluginInterface = pluginInterface;
-            _pluginCommands = new Dictionary<Type, IList<RegisteredCommandInfo>>();
-            _moduleInstances = new List<object>();
+            PluginInterface = pluginInterface;
+            PluginCommands = new Dictionary<Type, IList<RegisteredCommandInfo>>();
+            ModuleInstances = new List<object>();
         }
 
-        public CommandManager(DalamudPluginInterface pluginInterface, PluginServiceCollection serviceCollection) : this(pluginInterface)
+        public CommandManager(DalamudPluginInterface pluginInterface, IServiceProvider serviceProvider) : this(pluginInterface)
         {
-            _serviceCollection = serviceCollection;
+            ServiceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Dalamud.CrystalTower.Commands
         public void AddCommandModule(Type commandModule)
         {
             var instance = Activator.CreateInstance(commandModule);
-            _serviceCollection?.InjectInto(instance);
+            ServiceProvider?.InjectInto(instance);
 
             var newPluginCommands = commandModule.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
                 .Where(method => method.GetCustomAttribute<CommandAttribute>() != null)
@@ -46,11 +46,11 @@ namespace Dalamud.CrystalTower.Commands
 
             foreach (var registeredCommandInfo in newPluginCommands)
             {
-                _pluginInterface.CommandManager.AddHandler(registeredCommandInfo.Name, registeredCommandInfo.Command);
+                PluginInterface.CommandManager.AddHandler(registeredCommandInfo.Name, registeredCommandInfo.Command);
             }
 
-            _pluginCommands[commandModule] = newPluginCommands;
-            _moduleInstances.Add(instance);
+            PluginCommands[commandModule] = newPluginCommands;
+            ModuleInstances.Add(instance);
         }
 
         /// <summary>
@@ -66,12 +66,12 @@ namespace Dalamud.CrystalTower.Commands
         /// <param name="commandModule">The command module type to uninstall commands from.</param>
         public void RemoveCommandModule(Type commandModule)
         {
-            foreach (var registeredCommandInfo in _pluginCommands[commandModule])
+            foreach (var registeredCommandInfo in PluginCommands[commandModule])
             {
-                _pluginInterface.CommandManager.RemoveHandler(registeredCommandInfo.Name);
+                PluginInterface.CommandManager.RemoveHandler(registeredCommandInfo.Name);
             }
 
-            _pluginCommands.Remove(commandModule);
+            PluginCommands.Remove(commandModule);
         }
 
         /// <summary>
@@ -121,14 +121,14 @@ namespace Dalamud.CrystalTower.Commands
         /// <summary>
         /// Removes all commands from the plugin interface and frees any command modules implementing <see cref="IDisposable"/>.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
-            foreach (var moduleType in _pluginCommands.Keys)
+            foreach (var moduleType in PluginCommands.Keys)
             {
                 RemoveCommandModule(moduleType);
             }
 
-            foreach (var instance in _moduleInstances)
+            foreach (var instance in ModuleInstances)
             {
                 if (instance is IDisposable disposableInstance)
                 {
@@ -137,7 +137,7 @@ namespace Dalamud.CrystalTower.Commands
             }
         }
 
-        private class RegisteredCommandInfo
+        protected class RegisteredCommandInfo
         {
             public string Name { get; set; }
 

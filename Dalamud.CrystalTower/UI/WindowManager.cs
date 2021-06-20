@@ -1,4 +1,4 @@
-﻿using Dalamud.CrystalTower.DependencyInjection;
+﻿using Dalamud.CrystalTower.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,17 +7,17 @@ namespace Dalamud.CrystalTower.UI
 {
     public class WindowManager : ImmediateModeWindow, IDisposable
     {
-        private readonly IList<WindowInfo> _windows;
-        private readonly PluginServiceCollection _serviceCollection;
+        protected readonly IList<WindowInfo> Windows;
+        protected readonly IServiceProvider ServiceProvider;
 
         public WindowManager()
         {
-            _windows = new List<WindowInfo>();
+            Windows = new List<WindowInfo>();
         }
 
-        public WindowManager(PluginServiceCollection serviceCollection) : this()
+        public WindowManager(IServiceProvider serviceProvider) : this()
         {
-            _serviceCollection = serviceCollection;
+            ServiceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Dalamud.CrystalTower.UI
         /// </summary>
         public void Draw()
         {
-            foreach (var windowInfo in _windows)
+            foreach (var windowInfo in Windows)
             {
                 var window = windowInfo.Instance;
                 var visible = windowInfo.Visible;
@@ -63,7 +63,7 @@ namespace Dalamud.CrystalTower.UI
         /// <typeparam name="TWindow">The window type.</typeparam>
         public void ShowWindow<TWindow>() where TWindow : ImmediateModeWindow
         {
-            var windowInfo = _windows.First(w => w.Instance is TWindow);
+            var windowInfo = Windows.First(w => w.Instance is TWindow);
             windowInfo.Visible = true;
         }
 
@@ -74,7 +74,7 @@ namespace Dalamud.CrystalTower.UI
         /// <typeparam name="TWindow">The window type.</typeparam>
         public void ToggleWindow<TWindow>() where TWindow : ImmediateModeWindow
         {
-            var windowInfo = _windows.First(w => w.Instance is TWindow);
+            var windowInfo = Windows.First(w => w.Instance is TWindow);
             windowInfo.Visible = !windowInfo.Visible;
         }
 
@@ -86,14 +86,14 @@ namespace Dalamud.CrystalTower.UI
         public void AddWindow<TWindow>(bool initiallyVisible) where TWindow : ImmediateModeWindow
         {
             var instance = (ImmediateModeWindow)Activator.CreateInstance<TWindow>();
-            _serviceCollection?.InjectInto(instance);
+            ServiceProvider?.InjectInto(instance);
 
             instance.ForeignWindowOpenRequested += OnWindowOpenRequested;
             instance.ForeignWindowCloseRequested += OnWindowCloseRequested;
 
             instance.ForeignWindowReferenceRequested += OnWindowReferenceRequested;
 
-            _windows.Add(new WindowInfo
+            Windows.Add(new WindowInfo
             {
                 Instance = instance,
                 Visible = initiallyVisible,
@@ -106,7 +106,7 @@ namespace Dalamud.CrystalTower.UI
         /// <param name="windowType">The type of the window to be opened.</param>
         private void OnWindowOpenRequested(Type windowType)
         {
-            var windowInfo = _windows.First(w => windowType.IsInstanceOfType(w.Instance));
+            var windowInfo = Windows.First(w => windowType.IsInstanceOfType(w.Instance));
             windowInfo.Visible = true;
         }
 
@@ -116,7 +116,7 @@ namespace Dalamud.CrystalTower.UI
         /// <param name="windowType">The type of the window to be closed.</param>
         private void OnWindowCloseRequested(Type windowType)
         {
-            var windowInfo = _windows.First(w => windowType.IsInstanceOfType(w.Instance));
+            var windowInfo = Windows.First(w => windowType.IsInstanceOfType(w.Instance));
             windowInfo.Visible = false;
         }
 
@@ -126,15 +126,15 @@ namespace Dalamud.CrystalTower.UI
         /// <param name="windowType">The type of the window to be returned.</param>
         public object OnWindowReferenceRequested(Type windowType)
         {
-            return _windows.First(w => windowType.IsInstanceOfType(w.Instance)).Instance;
+            return Windows.First(w => windowType.IsInstanceOfType(w.Instance)).Instance;
         }
 
         /// <summary>
         /// Frees any <see cref="ImmediateModeWindow"/> instances stored in this manager that implement <see cref="IDisposable"/>.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
-            foreach (var windowsInfo in _windows)
+            foreach (var windowsInfo in Windows)
             {
                 if (windowsInfo.Instance is IDisposable disposableInstance)
                 {
@@ -143,7 +143,7 @@ namespace Dalamud.CrystalTower.UI
             }
         }
 
-        private class WindowInfo
+        protected class WindowInfo
         {
             public ImmediateModeWindow Instance { get; set; }
 
