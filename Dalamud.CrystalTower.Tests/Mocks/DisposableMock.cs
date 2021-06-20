@@ -2,7 +2,7 @@
 
 namespace Dalamud.CrystalTower.Tests.Mocks
 {
-    public class MockDisposable : IDisposable
+    public class DisposableMock : IDisposable
     {
         public bool Disposed { get; private set; }
 

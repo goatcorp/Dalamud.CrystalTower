@@ -19,7 +19,7 @@ namespace Dalamud.CrystalTower.Tests
         [Fact]
         public void PluginServiceCollection_GetService_Should_Respect_Lifetime()
         {
-            var mockDisposable = new MockDisposable();
+            var mockDisposable = new DisposableMock();
 
             var serviceCollection = new PluginServiceCollection();
             serviceCollection.AddService(mockDisposable, shouldDispose: false);
