@@ -58,6 +58,8 @@ namespace Dalamud.CrystalTower.DependencyInjection
         {
             foreach (var service in Services)
             {
+                if (service.Instance.Equals(this)) continue;
+
                 if (service.Instance is IDisposable disposableInstance)
                 {
                     disposableInstance.Dispose();
