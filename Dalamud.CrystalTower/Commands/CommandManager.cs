@@ -64,12 +64,21 @@ namespace Dalamud.CrystalTower.Commands
         /// Retrieves the command module registered under the provided type, or throws an exception
         /// if the module was not registered.
         /// </summary>
+        /// <param name="commandModule">The type of the module instance to retrieve.</param>
+        /// <returns>The module instance.</returns>
+        public object GetCommandModule(Type commandModule)
+        {
+            return ModuleInstances.First(commandModule.IsInstanceOfType);
+        }
+
+        /// <summary>
+        /// Retrieves the command module registered under the provided type, or throws an exception
+        /// if the module was not registered.
+        /// </summary>
         /// <typeparam name="TCommandModule">The type of the module instance to retrieve.</typeparam>
         /// <returns>The module instance.</returns>
         public TCommandModule GetCommandModule<TCommandModule>()
-        {
-            return (TCommandModule)ModuleInstances.First(inst => inst is TCommandModule);
-        }
+            => (TCommandModule)GetCommandModule(typeof(TCommandModule));
 
         /// <summary>
         /// Uninstalls commands from the provided command module type into the plugin interface.
@@ -82,7 +91,15 @@ namespace Dalamud.CrystalTower.Commands
                 PluginInterface.CommandManager.RemoveHandler(registeredCommandInfo.Name);
             }
 
+            var moduleInstance = GetCommandModule(commandModule);
+
             PluginCommands.Remove(commandModule);
+            ModuleInstances.Remove(moduleInstance);
+
+            if (moduleInstance is IDisposable disposableInstance)
+            {
+                disposableInstance.Dispose();
+            }
         }
 
         /// <summary>
@@ -138,14 +155,6 @@ namespace Dalamud.CrystalTower.Commands
             foreach (var moduleType in moduleTypes)
             {
                 RemoveCommandModule(moduleType);
-            }
-
-            foreach (var instance in ModuleInstances)
-            {
-                if (instance is IDisposable disposableInstance)
-                {
-                    disposableInstance.Dispose();
-                }
             }
         }
 
