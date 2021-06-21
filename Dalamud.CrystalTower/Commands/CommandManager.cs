@@ -134,7 +134,8 @@ namespace Dalamud.CrystalTower.Commands
         /// </summary>
         public virtual void Dispose()
         {
-            foreach (var moduleType in PluginCommands.Keys)
+            var moduleTypes = PluginCommands.Keys.ToList(); // Duplicate the list to avoiding modifying the collection during this loop
+            foreach (var moduleType in moduleTypes)
             {
                 RemoveCommandModule(moduleType);
             }
