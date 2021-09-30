@@ -1,7 +1,6 @@
 ﻿using Dalamud.CrystalTower.Commands.Attributes;
 using Dalamud.CrystalTower.DependencyInjection.Extensions;
 using Dalamud.Game.Command;
-using Dalamud.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,20 +10,20 @@ namespace Dalamud.CrystalTower.Commands
 {
     public class CommandManager : IDisposable
     {
-        protected readonly DalamudPluginInterface PluginInterface;
+        protected readonly Game.Command.CommandManager Commands;
         protected readonly IDictionary<Type, IList<RegisteredCommandInfo>> PluginCommands;
         protected readonly IList<object> ModuleInstances;
 
         protected readonly IServiceProvider ServiceProvider;
 
-        public CommandManager(DalamudPluginInterface pluginInterface)
+        public CommandManager(Game.Command.CommandManager commands)
         {
-            PluginInterface = pluginInterface;
+            Commands = commands;
             PluginCommands = new Dictionary<Type, IList<RegisteredCommandInfo>>();
             ModuleInstances = new List<object>();
         }
 
-        public CommandManager(DalamudPluginInterface pluginInterface, IServiceProvider serviceProvider) : this(pluginInterface)
+        public CommandManager(Game.Command.CommandManager commands, IServiceProvider serviceProvider) : this(commands)
         {
             ServiceProvider = serviceProvider;
         }
@@ -46,7 +45,7 @@ namespace Dalamud.CrystalTower.Commands
 
             foreach (var registeredCommandInfo in newPluginCommands)
             {
-                PluginInterface.CommandManager.AddHandler(registeredCommandInfo.Name, registeredCommandInfo.Command);
+                Commands.AddHandler(registeredCommandInfo.Name, registeredCommandInfo.Command);
             }
 
             PluginCommands[commandModule] = newPluginCommands;
@@ -88,7 +87,7 @@ namespace Dalamud.CrystalTower.Commands
         {
             foreach (var registeredCommandInfo in PluginCommands[commandModule])
             {
-                PluginInterface.CommandManager.RemoveHandler(registeredCommandInfo.Name);
+                Commands.RemoveHandler(registeredCommandInfo.Name);
             }
 
             var moduleInstance = GetCommandModule(commandModule);
