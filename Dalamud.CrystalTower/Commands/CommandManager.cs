@@ -130,7 +130,7 @@ namespace Dalamud.CrystalTower.Commands
             };
 
             // Create list of objects that will be filled with one object per alias, in addition to the base command object.
-            var registeredCommandInfos = new List<RegisteredCommandInfo> { new RegisteredCommandInfo { Name = command.Command, Command = commandInfo } };
+            var registeredCommandInfos = new List<RegisteredCommandInfo> { new() { Name = command.Command, Command = commandInfo } };
 
             // ReSharper disable once InvertIf
             if (aliases != null)

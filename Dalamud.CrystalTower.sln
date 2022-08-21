@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{80FBA1C4-93BE-40C3-A051-F5D11982602F}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dalamud.CrystalTower.Tests", "Dalamud.CrystalTower.Tests\Dalamud.CrystalTower.Tests.csproj", "{191E8CD5-3328-4AC5-B4A4-F96C6249C562}"
